@@ -9,14 +9,13 @@ class AppContextProvider extends Component<{}, IAppContextModel> {
 
   constructor(props: {}) {
     super(props);
-    this.state = { baseURL: "https://localhost:44333/",menuLookup:[] };
+    this.state = { baseURL: "http://localhost:8001/",menuLookup:[] };
   }
   componentDidMount(){
     this.fetchMenuLookup();
   }
-
   fetchMenuLookup = async () => {    
-    const uri = this.state.baseURL + "Menu/GetMenuLookup";
+    const uri = this.state.baseURL + "Menu/GetAllMenuLookup";
     const response = await fetch(uri);
     this.setState({menuLookup:await response.json()});
   };

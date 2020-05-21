@@ -251,7 +251,7 @@ const MenuForm = (props: IProp) => {
                       <em>None</em>
                     </MenuItem>
                     {context.menuLookup.map((item, index) => {
-                      return <MenuItem value={item.id}>{item.banner}</MenuItem>;
+                      return <MenuItem value={item.id} key={index}>{item.banner}</MenuItem>;
                     })}
                   </Select>
                 </Grid>
