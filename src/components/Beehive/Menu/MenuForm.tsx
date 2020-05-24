@@ -120,7 +120,7 @@ const MenuForm = (props: IProp) => {
       setMenuState(props.menuCatalogue[props.currentIndex]);
       handleModalOpen();
     }
-  }, [props]);
+  }, [props.currentIndex,props.modalState]);
 
   return (
     <div>
@@ -149,6 +149,9 @@ const MenuForm = (props: IProp) => {
                     variant="outlined"
                     value={menuState.banner}
                     required={true}
+                    inputProps={{
+                      maxLength: 50,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={4}>
@@ -163,6 +166,9 @@ const MenuForm = (props: IProp) => {
                     variant="outlined"
                     value={menuState.displayBanner}
                     required={true}
+                    inputProps={{
+                      maxLength: 50,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={4}>
@@ -177,6 +183,9 @@ const MenuForm = (props: IProp) => {
                     variant="outlined"
                     value={menuState.icon}
                     required={true}
+                    inputProps={{
+                      maxLength: 20,
+                    }}
                   />
                 </Grid>
               </Grid>
@@ -192,6 +201,9 @@ const MenuForm = (props: IProp) => {
                     onChange={handleInputChange}
                     variant="outlined"
                     value={menuState.routerLink}
+                    inputProps={{
+                      maxLength: 50,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={4}>
@@ -269,6 +281,9 @@ const MenuForm = (props: IProp) => {
                     onChange={handleInputChange}
                     variant="outlined"
                     value={menuState.description}
+                    inputProps={{
+                      maxLength: 200,
+                    }}
                   />
                 </Grid>
               </Grid>
