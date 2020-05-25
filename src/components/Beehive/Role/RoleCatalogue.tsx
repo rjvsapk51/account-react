@@ -1,127 +1,130 @@
-import React, { Component } from "react";
-import Role from "./RoleForm";
+import React, { useState, useEffect, forwardRef } from "react";
 import { IRoleModel } from "../../../models/BeeHiveModel";
-import {AppContext} from "../../../contexts/AppContext";
-interface IProp {}
-
-interface IState {
-  RoleModel: Array<IRoleModel>;
-  loading: boolean;
-  currentIndex: number;
+import MaterialTable, { Column, Icons } from "material-table";
+import AddBox from "@material-ui/icons/AddBox";
+import Check from "@material-ui/icons/Check";
+import ChevronLeft from "@material-ui/icons/ChevronLeft";
+import ChevronRight from "@material-ui/icons/ChevronRight";
+import Clear from "@material-ui/icons/Clear";
+import DeleteOutline from "@material-ui/icons/DeleteOutline";
+import Edit from "@material-ui/icons/Edit";
+import EditOutlined from "@material-ui/icons/EditOutlined";
+import FilterList from "@material-ui/icons/FilterList";
+import FirstPage from "@material-ui/icons/FirstPage";
+import LastPage from "@material-ui/icons/LastPage";
+import Remove from "@material-ui/icons/Remove";
+import SaveAlt from "@material-ui/icons/SaveAlt";
+import Search from "@material-ui/icons/Search";
+import ArrowDownward from "@material-ui/icons/ArrowDownward";
+import ViewColumn from "@material-ui/icons/ViewColumn";
+import { Typography } from "@material-ui/core";
+interface parentDate {
+  role: IRoleModel;
+  action: "create" | "update" | "delete" | undefined;
 }
 
-class RoleCatalogue extends Component<IProp, IState> {
-
-  static contextType=AppContext;
-
-  constructor(props: IProp) {
-    super(props);
-    this.state = { RoleModel: [], loading: true, currentIndex: -1 };
-  }
-
-  async componentDidMount() {
-    await this.fetchRoleCatalogue();
-  }
-
-  async fetchRoleCatalogue() {
-    const uri = this.context.baseURL+"Role";
-    const response = await fetch(uri);
-    this.setState({
-      RoleModel: await response.json(),
-      loading: false,
-      currentIndex: -1,
-    });
-  }
-
-  async postRole(data: IRoleModel) {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    };
-    await fetch(this.context.baseURL+"Role", requestOptions);
-    await this.fetchRoleCatalogue();
-  }
-
-  async putRole(data: IRoleModel) {
-    const requestOptions = {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    };
-    await fetch(this.context.baseURL+"Role", requestOptions);
-    await this.fetchRoleCatalogue();
-  }
-
-  async deleteRole(index: number) {
-    const uri = this.context.baseURL+"Role?id=" + index;
-    const requestOptions = {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-    };
-    await fetch(uri, requestOptions);
-    await this.fetchRoleCatalogue();
-  }
-
-  onAddorEdit = (data: IRoleModel) => {
-    if (data.id !== 0) {
-      this.putRole(data);
-    } else {
-      this.postRole(data);
-    }
-    this.setState({ currentIndex: -1 });
-  };
-
-  handleEdit = (index: number) => {
-    this.setState({ currentIndex: index });
-  };
-  
-  handleDelete = (index: number) => {
-    this.deleteRole(index);
-  };
-
-  render() {
-    const items = this.state.loading ? (
-      <div>Loading...</div>
-    ) : (
-      <table>
-        <tbody>
-          {this.state.RoleModel.map((item, index) => {
-            return (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td> {item.banner} </td>
-                <td>{item.description}</td>
-                <td>
-                  <button onClick={() => this.handleEdit(index)}>Edit</button>
-                </td>
-                <td>
-                  <button
-                    onClick={() =>
-                      this.handleDelete(item.id !== undefined ? item.id : 0)
-                    }
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    );
-    return (
-      <div>
-        <Role
-          onAddorEdit={this.onAddorEdit}
-          currentIndex={this.state.currentIndex}
-          roleCatalogue={this.state.RoleModel}
-        />
-        <hr />
-        {items}
-      </div>
-    );
-  }
+interface IProp {
+  onAnyButtonClick: (data: parentDate) => void;
+  roleList: IRoleModel[];
+  isLoading: boolean;
 }
 
+const RoleCatalogue = (props: IProp) => {
+  const [columnsState] = useState<Array<Column<IRoleModel>>>([
+    { title: "Id", field: "id", hidden: true },
+    { title: "Banner", field: "banner" },
+    { title: "Is Super Admin", field: "isSuperAdmin", type: "boolean" },
+    { title: "Is active", field: "isActive", type: "boolean" },
+    { title: "Description", field: "description" },
+  ]);
+  const [roleListState, setRoleListState] = useState<IRoleModel[]>([]);
+  //populate table on coponent load
+  useEffect(() => {
+    setRoleListState(props.roleList);
+  }, [props.roleList, props.isLoading]);
+
+  const handleAnyButtonClick = (data: parentDate) => {
+    props.onAnyButtonClick(data);
+  };
+  const tableIcons: Icons = {
+    Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
+    Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
+    Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Delete: forwardRef((props, ref) => <DeleteOutline {...props} ref={ref} />),
+    DetailPanel: forwardRef((props, ref) => (
+      <ChevronRight {...props} ref={ref} />
+    )),
+    Edit: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+    Export: forwardRef((props, ref) => <SaveAlt {...props} ref={ref} />),
+    Filter: forwardRef((props, ref) => <FilterList {...props} ref={ref} />),
+    FirstPage: forwardRef((props, ref) => <FirstPage {...props} ref={ref} />),
+    LastPage: forwardRef((props, ref) => <LastPage {...props} ref={ref} />),
+    NextPage: forwardRef((props, ref) => <ChevronRight {...props} ref={ref} />),
+    PreviousPage: forwardRef((props, ref) => (
+      <ChevronLeft {...props} ref={ref} />
+    )),
+    ResetSearch: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
+    Search: forwardRef((props, ref) => <Search {...props} ref={ref} />),
+    SortArrow: forwardRef((props, ref) => (
+      <ArrowDownward {...props} ref={ref} />
+    )),
+    ThirdStateCheck: forwardRef((props, ref) => (
+      <Remove {...props} ref={ref} />
+    )),
+    ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
+  };
+  return (
+    <div>
+      <MaterialTable
+        title={
+          <Typography
+            color="textSecondary"
+            gutterBottom
+            align="left"
+            variant="h5"
+          >
+            Role
+          </Typography>
+        }
+        isLoading={props.isLoading}
+        columns={columnsState}
+        data={roleListState}
+        icons={tableIcons}
+        actions={[
+          {
+            icon: () => <EditOutlined />,
+            tooltip: "Edit role",
+            position: "row",
+            onClick: (event, rowData) => {
+              handleAnyButtonClick({
+                role: rowData as IRoleModel,
+                action: "update",
+              });
+            },
+          },
+          {
+            icon: () => <DeleteOutline />,
+            tooltip: "Delete role",
+            position: "row",
+            onClick: (event, rowData) => {
+              handleAnyButtonClick({
+                role: rowData as IRoleModel,
+                action: "delete",
+              });
+            },
+          },
+          {
+            icon: () => <AddBox />,
+            tooltip: "Add role",
+            position: "toolbar",
+            onClick: (event) => {
+              handleAnyButtonClick({ role: {}, action: "create" });
+            },
+          },
+        ]}
+        options={{ pageSize: 10, pageSizeOptions: [10, 20, 50, 100] }}
+      />
+    </div>
+  );
+};
 export default RoleCatalogue;

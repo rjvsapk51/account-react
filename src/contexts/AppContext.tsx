@@ -9,7 +9,7 @@ class AppContextProvider extends Component<{}, IAppContextModel> {
 
   constructor(props: {}) {
     super(props);
-    this.state = { baseURL: "http://localhost:8001/",menuLookup:[] };
+    this.state = { baseURL: "https://localhost:44333/",menuLookup:[] };
   }
   componentDidMount(){
     this.fetchMenuLookup();

@@ -1,47 +1,55 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import { IRoleModel } from "../../../models/BeeHiveModel";
-interface IProps {
-  onAddorEdit: (person: IRoleModel) => void;
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Grid,
+  TextField,
+  FormLabel,
+  Checkbox,
+  DialogActions,
+  Button,
+} from "@material-ui/core";
+
+interface IProp {
+  onAddorEdit: (role: IRoleModel) => void;
   currentIndex: number;
   roleCatalogue: Array<IRoleModel>;
+  //for modal open and close
+  modalState: boolean;
+  toggleModelState: (modalState: boolean) => void;
+  //for form reset;
+  changeCurrentIndex: (currentIndex: number) => void;
 }
-class RoleForm extends Component<IProps, IRoleModel> {
-  constructor(props: IProps) {
-    super(props);
-    if (props.currentIndex === -1) {
-      this.state = {
-        id: 0,
-        banner: "",
-        description: "",
-        isActive: true,
-        isSuperAdmin: false,
-      };
-    } else {
-      this.state = props.roleCatalogue[props.currentIndex];
-    }
-  }
-  componentDidUpdate(prevProp: IProps) {
-    if (
-      prevProp.currentIndex !== this.props.currentIndex ||
-      prevProp.roleCatalogue.length !== this.props.roleCatalogue.length
-    ) {
-      this.setState(this.props.roleCatalogue[this.props.currentIndex]);
-    }
-    if (
-      this.props.currentIndex !== prevProp.currentIndex &&
-      this.props.currentIndex === -1
-    ) {
-      this.setState({
-        id: 0,
-        banner: "",
-        description: "",
-        isActive: true,
-        isSuperAdmin: false,
-      });
-    }
-  }
-  handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
-    var value;
+
+interface IState {
+  roleModel: IRoleModel;
+  openModal: boolean;
+}
+
+const RoleForm = (props: IProp) => {
+  const [roleState, setRoleState] = useState<IRoleModel>({
+    id: 0,
+    banner: "",
+    isSuperAdmin: false,
+    isActive: false,
+    description: "",
+  });
+  const resetMenuState = () => {
+    setRoleState({
+      id: 0,
+      banner: "",
+      isSuperAdmin: false,
+      isActive: false,
+      description: "",
+    });
+  };
+  const [modalState, setModalState] = useState<boolean>(false);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let inputValue = e.currentTarget.name;
+    var value: any;
     if (e.currentTarget.type === "checkbox") {
       value = e.currentTarget.checked;
     } else if (e.currentTarget.type === "number") {
@@ -49,57 +57,131 @@ class RoleForm extends Component<IProps, IRoleModel> {
     } else {
       value = e.currentTarget.value;
     }
-    this.setState({
-      [e.currentTarget.name]: value,
+    setRoleState({
+      ...roleState,
+      [inputValue]: value,
     });
   };
 
-  private handleSubmit = async (
+  const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
-    this.props.onAddorEdit(this.state);
+    props.onAddorEdit(roleState);
+    setModalState(false);
   };
 
-  render() {
-    return (
+  const handleModalClose = () => {
+    setModalState(false);
+    props.changeCurrentIndex(-1);
+  };
+  const handleModalOpen = () => {
+    setModalState(true);
+  };
+
+  useEffect(() => {
+    //create modal pop up
+    if (props.currentIndex === -2 && props.modalState === true) {
+      resetMenuState();
+      handleModalOpen();
+      props.toggleModelState(false);
+    }
+    if (props.currentIndex === -1) {
+      resetMenuState();
+    }
+    //edit modal pop up
+    if (props.currentIndex >= 0) {
+      setRoleState(props.roleCatalogue[props.currentIndex]);
+      handleModalOpen();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.currentIndex, props.modalState]);
+
+  return (
+    <div>
       <div>
-        <h1>Role Form</h1>
-        <form autoComplete="off" onSubmit={this.handleSubmit}>
-          <input
-            type="checkbox"
-            name="isActive"
-            checked={this.state.isActive}
-            onChange={this.handleInputChange}
-          />
-          <br />
-          <input
-            type="checkbox"
-            name="isSuperAdmin"
-            checked={this.state.isSuperAdmin}
-            onChange={this.handleInputChange}
-          />
-          <br />
-          <input
-            type="text"
-            name="banner"
-            value={this.state.banner}
-            placeholder="banner"
-            onChange={this.handleInputChange}
-          />
-          <br />
-          <input
-            type="text"
-            name="description"
-            value={this.state.description}
-            placeholder="description"
-            onChange={this.handleInputChange}
-          />
-          <br />
-          <input type="submit" value="Save" />
-        </form>
+        <Dialog
+          open={modalState}
+          onClose={handleModalClose}
+          aria-labelledby="form-dialog-title"
+          fullWidth={true}
+          maxWidth="lg"
+        >
+          <DialogTitle id="form-dialog-title">Create Menu</DialogTitle>
+          <form autoComplete="off" onSubmit={handleSubmit}>
+            <DialogContent>
+              <Grid id="1" container spacing={2}>
+                <Grid item xs={4}>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="banner"
+                    label="Banner"
+                    type="text"
+                    fullWidth={true}
+                    name="banner"
+                    onChange={handleInputChange}
+                    variant="outlined"
+                    value={roleState.banner}
+                    required={true}
+                    inputProps={{
+                      maxLength: 50,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                <FormLabel>Is super admin</FormLabel>
+                  <Checkbox
+                    checked={roleState.isSuperAdmin}
+                    onChange={handleInputChange}
+                    inputProps={{ "aria-label": "primary checkbox" }}
+                    name="isSuperAdmin"
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                <FormLabel>Is active</FormLabel>
+                  <Checkbox
+                    checked={roleState.isActive}
+                    onChange={handleInputChange}
+                    inputProps={{ "aria-label": "primary checkbox" }}
+                    name="isActive"
+                  />
+                </Grid>
+              </Grid>
+              
+              <Grid id="3" container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    margin="dense"
+                    id="description"
+                    label="Description"
+                    type="text"
+                    multiline={true}
+                    fullWidth={true}
+                    name="description"
+                    onChange={handleInputChange}
+                    variant="outlined"
+                    value={roleState.description}
+                    inputProps={{
+                      maxLength: 200,
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleModalClose} color="primary">
+                Cancel
+              </Button>
+              <Button color="primary" type="submit">
+                Save
+              </Button>
+            </DialogActions>
+          </form>
+        </Dialog>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
 export default RoleForm;

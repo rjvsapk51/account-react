@@ -40,6 +40,10 @@ const sidebarMenuItems = [
         name: 'Menu',
         link: '/menu'   
       },
+      {
+        name: 'Role',
+        link: '/role'   
+      },
       // {
       //   name: 'Level 2',
       //   items: [

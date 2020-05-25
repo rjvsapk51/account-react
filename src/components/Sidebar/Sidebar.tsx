@@ -4,10 +4,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Drawer from "@material-ui/core/Drawer";
 import SidebarMenu from "./SidebarMenu";
-import RoleCatalogue from "../Beehive/Role/RoleCatalogue";
 import TopBar from "../Topbar/Topbar";
 import Breadcrumb from "../Breadcrum/Breadcrum";
 import Menu from "../Beehive/Menu/Menu";
+import Role from "../Beehive/Role/Role";
 
 const Sidebar: React.FC = () => {
   const classes = useStyles();
@@ -53,7 +53,7 @@ const Sidebar: React.FC = () => {
                 <Menu />
               </Route>
               <Route path="/role">
-                <RoleCatalogue />
+                <Role/>
               </Route>
             </Switch>
           </div>

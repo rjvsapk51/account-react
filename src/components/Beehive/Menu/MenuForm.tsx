@@ -105,6 +105,7 @@ const MenuForm = (props: IProp) => {
   const handleModalOpen = () => {
     setModalState(true);
   };
+  
   useEffect(() => {
     //create modal pop up
     if (props.currentIndex === -2 && props.modalState === true) {
@@ -120,6 +121,7 @@ const MenuForm = (props: IProp) => {
       setMenuState(props.menuCatalogue[props.currentIndex]);
       handleModalOpen();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.currentIndex,props.modalState]);
 
   return (
